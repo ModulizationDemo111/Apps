@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title> IPA Library</title>
+    <style>
+        /* ... 之前的样式保持不变 ... */
+
+        /* 新增加载动画样式 */
+        .loading-icon {
+            position: relative;
+            pointer-events: none;  /* 防止在加载时进行交互 */
+        }
+        .loading-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ... body 内容保持不变 ... -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ... 之前的代码保持不变 ...
+
+            function displayApps(apps) {
+                appContainer.innerHTML = '';
+                apps.forEach(app => {
+                    // ... 其他代码保持不变 ...
+
+                    icon.addEventListener('click', async function() {
+                        try {
+                            icon.classList.add('loading-icon');
+                            // 使用Apple的iTunes Search API查询App信息
+                            const response = await fetch(`https://itunes.apple.com/lookup?bundleId=${app.bundleID}`);
+                            const data = await response.json();
+
+                            if (data.results && data.results.length > 0) {
+                                const appID = data.results[0].trackId;
+                                const appStoreURL = `https://apps.apple.com/app/id${appID}`;
+                                window.open(appStoreURL, "_top");
+                            } else {
+                                alert('未找到该应用，请检查 bundle ID 是否正确。');
+                            }
+                        } catch (error) {
+                            console.error('获取App信息时出错:', error);
+                            alert('获取App信息时发生错误，请稍后重试。' + error);
+                        } finally {
+                            icon.classList.remove('loading-</antArtifact>
