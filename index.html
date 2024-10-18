@@ -267,7 +267,7 @@
 
                     icon.addEventListener('click', async function() {
             try {
-                icon.classList.add('loading');
+                //icon.classList.add('loading');
                 // 使用Apple的iTunes Search API查询App信息
                 const response = await fetch(`https://itunes.apple.com/lookup?bundleId=${app.bundleID}`);
                 const data = await response.json();
