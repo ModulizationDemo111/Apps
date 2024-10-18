@@ -180,6 +180,33 @@
         </div>
     </div>
     <script>
+
+        document.documentElement.addEventListener(
+        "touchstart",
+        function(event) {
+          if (event.touches.length > 1) {
+            event.preventDefault();
+          }
+        },
+        false
+      );
+
+      var lastTouchEnd = 0;
+      document.documentElement.addEventListener(
+        "touchend",
+        function(event) {
+          var now = Date.now();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        false
+      );
+
+      document.addEventListener("gesturestart", function(event) {
+        event.preventDefault();
+      });
         document.addEventListener('DOMContentLoaded', function () {
             const loading = document.getElementById('loading');
             const errorContainer = document.getElementById('error-container');
@@ -231,7 +258,7 @@
                     icon.addEventListener('click', async function() {
             try {
                 // 使用Apple的iTunes Search API查询App信息
-                const response = await fetch(`https://itunes.apple.com/lookup?bundleId=${bundleID}`);
+                const response = await fetch(`https://itunes.apple.com/lookup?bundleId=${app.bundleID}`);
                 const data = await response.json();
 
                 // 检查是否有结果返回
