@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>swaggyP36000 IPA Library</title>
     <style>
         body {
@@ -227,6 +227,29 @@
                     };
                     icon.alt = app.name;
                     appDiv.appendChild(icon);
+
+                    icon.addEventListener('click', async function() {
+            try {
+                // 使用Apple的iTunes Search API查询App信息
+                const response = await fetch(`https://itunes.apple.com/lookup?bundleId=${bundleID}`);
+                const data = await response.json();
+
+                // 检查是否有结果返回
+                if (data.results && data.results.length > 0) {
+                    // 获取appID
+                    const appID = data.results[0].trackId;
+                    // 构造App Store链接
+                    const appStoreURL = `https://apps.apple.com/app/id${appID}`;
+                    // 在新标签页打开App Store
+                    window.open(appStoreURL, '_blank');
+                } else {
+                    alert('未找到该应用，请检查 bundle ID 是否正确。');
+                }
+            } catch (error) {
+                console.error('获取App信息时出错:', error);
+                alert('获取App信息时发生错误，请稍后重试。');
+            }
+        });
 
                     const appDetails = document.createElement('div');
                     appDetails.classList.add('app-details');
