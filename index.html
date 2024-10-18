@@ -178,7 +178,20 @@
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
-    
+
+        /* 轻微缩放的动画样式 */
+        .scaling {
+            animation: scaleUpDown 1s ease-in-out infinite;
+        }
+
+        @keyframes scaleUpDown {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05); /* 调整这里的值来控制放大效果 */
+            }
+        }
     </style>
 
 </head>
@@ -254,7 +267,7 @@
 
                     icon.addEventListener('click', async function() {
             try {
-                icon.classList.add('loading');
+                icon.classList.add('scaling');
                 // 使用Apple的iTunes Search API查询App信息
                 const response = await fetch(`https://itunes.apple.com/lookup?bundleId=${app.bundleID}`);
                 const data = await response.json();
@@ -275,7 +288,7 @@
                 alert('获取App信息时发生错误，请稍后重试。'+error);
             }finally {
                 // 移除 loading 类
-                icon.classList.remove('loading');
+                icon.classList.remove('scaling');
             }
         });
 
