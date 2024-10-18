@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>swaggyP36000 IPA Library</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1c1c1e;
+            color: #f2f2f7;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        header {
+            background: #2c2c2e;
+            color: #f2f2f7;
+            padding: 20px 0;
+            text-align: center;
+            border-bottom: #77a1d3 3px solid;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        #search {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            display: block;
+            font-size: 16px;
+            background-color: #2c2c2e;
+            border: 1px solid #3a3a3c;
+            color: #f2f2f7;
+        }
+
+        .app {
+            background: #2c2c2e;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .app img {
+            float: left;
+            margin-right: 20px;
+            border-radius: 10px;
+            width: 100px;
+            height: 100px;
+            background-color: gray;
+        }
+
+        .app h2 {
+            margin-top: 0;
+            color: #f2f2f7;
+        }
+
+        .app p {
+            margin: 5px 0;
+        }
+
+        .app-details {
+            overflow: hidden;
+        }
+
+        .version {
+            background: #3a3a3c;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .version p {
+            margin: 5px 0;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .more-versions {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .more-versions button {
+            padding: 10px;
+            background-color: #3a3a3c;
+            color: #f2f2f7;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .more-versions button:hover {
+            background-
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #2c2c2e;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #f2f2f7;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        img[src=''],
+        img:not([src]) {
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1 id="library-name">Loading</h1>
+    </header>
+    <div class="container">
+        <input type="text" id="search" placeholder="Search for apps...">
+        <div id="app-container">
+            <!-- App details will be injected here -->
+        </div>
+        <div id="error-container" class="error-message"></div>
+        <div id="loading" class="loading">
+            Loading...
+        </div>
+    </div>
+    <div id="version-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-versions"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loading = document.getElementById('loading');
+            const errorContainer = document.getElementById('error-container');
+            const appContainer = document.getElementById('app-container');
+            const searchInput = document.getElementById('search');
+            const modal = document.getElementById('version-modal');
+            const modalContent = document.getElementById('modal-versions');
+            const span = document.getElementsByClassName('close')[0];
+
+            span.onclick = function () {
+                modal.style.display = 'none';
+                modalContent.innerHTML = '';
+            }
+
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    modalContent.innerHTML = '';
+                }
+            }
+
+            function debounce(func, delay) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+
+            function displayApps(apps) {
+                appContainer.innerHTML = '';
+                apps.forEach(app => {
+                    const appDiv = document.createElement('div');
+                    appDiv.classList.add('app');
+
+                    const icon = document.createElement('img');
+                    // icon.src = app.iconURL;
+                    icon.style.opacity = 0;
+                    icon.onerror = function () {
+                        icon.src = 'https://dummyimage.com/300/0/1.png&text=IPALib';
+                        icon.onerror = null;
+                    };
+                    icon.onload = function () {
+                        icon.style.opacity = 1;
+                    };
+                    icon.alt = app.name;
+                    appDiv.appendChild(icon);
+
+                    const appDetails = document.createElement('div');
+                    appDetails.classList.add('app-details');
+
+                    const appName = document.createElement('h2');
+                    appName.textContent = app.name;
+                    appDetails.appendChild(appName);
+
+
+                    const version = document.createElement('p');
+                    version.innerHTML = `
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Description:</strong> ${app.localizedDescription}
+    </span>
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Version:</strong> ${app.version}
+    </span>
+
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Type:</strong> ${app.type}
+    </span>
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Bundle ID:</strong> ${app.bundleID}
+    </span>
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Version Date:</strong> ${app.versionDate}
+    </span>
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Full Date:</strong> ${app.fullDate}
+    </span>
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Size:</strong> ${app.size} M
+    </span>
+    <span style="display: block; margin-bottom: 5px; text-align: left;">
+        <strong style="">Downloads:</strong> 
+        <a href="${app.down}" style="color: #007bff; text-decoration: none;" target="_blank">
+            Click to Download
+        </a>
+    </span>
+`;
+
+                    appDetails.appendChild(version);
+
+
+                    appDiv.appendChild(appDetails);
+
+
+                    appContainer.appendChild(appDiv);
+                });
+            }
+
+            let fetchUrl = "https://repo.apptesters.org/";
+
+            fetch(fetchUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const libraryName = document.getElementById('library-name');
+                    libraryName.textContent = data.name;
+
+                    displayApps(data.apps);
+                    loading.style.display = 'none';
+
+                    data.apps.forEach(app => {
+                        app.stringifiedData = JSON.stringify(app).toLowerCase();
+                    });
+
+                    searchInput.addEventListener('input', debounce(function () {
+                        const query = this.value.toLowerCase();
+                        const filteredApps = data.apps.filter(app =>
+                            app.stringifiedData.includes(query)
+                        );
+                        displayApps(filteredApps);
+                    }, 300)); // å»¶è¿300æ¯«ç§æ§è¡
+                })
+                .catch(error => {
+                    errorContainer.textContent = 'Failed to load apps: ' + error.message;
+                    loading.style.display = 'none';
+                });
+        });
+    </script>
+</body>
+
+</html>
